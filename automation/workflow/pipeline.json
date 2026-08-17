@@ -1,0 +1,16 @@
+{
+  "name": "myntra-to-pinterest-v1",
+  "version": 1,
+  "steps": [
+    "validate-myntra-url",
+    "fetch-product-metadata",
+    "save-product",
+    "convert-extrape-link",
+    "generate-pinterest-copy",
+    "render-creative",
+    "preview-and-approve",
+    "publish-to-pinterest"
+  ],
+  "status": "draft",
+  "notes": "Each integration is isolated behind an adapter so V3 automatic discovery can feed the same pipeline."
+}

@@ -1,0 +1,11 @@
+{
+  "id": "clean-product",
+  "canvas": { "width": 1000, "height": 1500 },
+  "purpose": "Clean product-first Pinterest creative",
+  "layers": [
+    { "type": "eyebrow", "text": "{{category}}" },
+    { "type": "product-image", "source": "{{imageUrl}}" },
+    { "type": "headline", "text": "{{headline}}" },
+    { "type": "cta", "text": "SHOP THE LOOK →" }
+  ]
+}

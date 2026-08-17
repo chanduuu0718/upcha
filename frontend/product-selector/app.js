@@ -9,6 +9,7 @@ const selected = document.querySelector('#selected');
 const selectButton = document.querySelector('#select-product');
 const creative = document.querySelector('#creative');
 const imagePlaceholder = document.querySelector('#image-placeholder');
+const selectedMessage = document.querySelector('#selected-message');
 
 let currentProduct = null;
 
@@ -25,7 +26,7 @@ function showProduct(product, url) {
   currentProduct = { ...product, url };
   document.querySelector('#product-name').textContent = product.name || 'Myntra product';
   document.querySelector('#product-url').textContent = url;
-  document.querySelector('#product-price').textContent = product.price ? `₹${product.price}` : 'Not available';
+  document.querySelector('#product-price').textContent = product.price != null ? `₹${product.price}` : 'Not available';
   document.querySelector('#product-category').textContent = product.category || 'Myntra product';
 
   imagePlaceholder.replaceChildren();
@@ -35,6 +36,9 @@ function showProduct(product, url) {
     image.alt = product.name || 'Product image';
     image.referrerPolicy = 'no-referrer';
     image.className = 'product-image';
+    image.onerror = () => {
+      imagePlaceholder.textContent = 'Product image could not be displayed.';
+    };
     imagePlaceholder.appendChild(image);
   } else {
     imagePlaceholder.textContent = 'Product image unavailable';
@@ -43,6 +47,31 @@ function showProduct(product, url) {
   preview.classList.remove('hidden');
   selected.classList.add('hidden');
   creative.classList.add('hidden');
+}
+
+async function selectProduct() {
+  if (!currentProduct) {
+    error.textContent = 'Fetch a product first.';
+    return;
+  }
+
+  selectButton.disabled = true;
+  selectButton.textContent = 'Creating…';
+  error.textContent = '';
+
+  try {
+    selectedMessage.textContent = `Selected: ${currentProduct.name || 'Myntra product'}`;
+    selected.classList.remove('hidden');
+    creative.classList.remove('hidden');
+    await renderCreative(currentProduct);
+    creative.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (err) {
+    creative.classList.add('hidden');
+    error.textContent = `Creative generation failed: ${err instanceof Error ? err.message : 'Unknown error'}`;
+  } finally {
+    selectButton.disabled = false;
+    selectButton.textContent = 'Select product';
+  }
 }
 
 form.addEventListener('submit', async (event) => {
@@ -60,22 +89,19 @@ form.addEventListener('submit', async (event) => {
   button.textContent = 'Fetching…';
 
   try {
-    const response = await fetch(`${API_BASE}/api/products/from-url?url=${encodeURIComponent(url)}`);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    const response = await fetch(`${API_BASE}/api/products/from-url?url=${encodeURIComponent(url)}`, { signal: controller.signal });
+    clearTimeout(timeout);
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || 'Product retrieval failed.');
     showProduct(payload, url);
   } catch (err) {
-    error.textContent = err.message || 'Could not retrieve the product.';
+    error.textContent = err.name === 'AbortError' ? 'Product retrieval timed out. Please try again.' : (err.message || 'Could not retrieve the product.');
   } finally {
     button.disabled = false;
     button.textContent = 'Fetch product';
   }
 });
 
-selectButton.addEventListener('click', () => {
-  if (!currentProduct) return;
-  document.querySelector('#selected-message').textContent = currentProduct.url;
-  selected.classList.remove('hidden');
-  creative.classList.remove('hidden');
-  renderCreative(currentProduct);
-});
+selectButton.addEventListener('click', selectProduct);

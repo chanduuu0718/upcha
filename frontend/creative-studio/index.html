@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upcha Creative Studio</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="app">
+    <section class="panel controls">
+      <p class="eyebrow">UPCHA · CREATIVE STUDIO</p>
+      <h1>Create a Pinterest poster</h1>
+      <p class="muted">Turn a selected product into a fresh promotional creative.</p>
+
+      <label>Product image URL
+        <input id="imageUrl" type="url" placeholder="https://.../product-image.jpg" />
+      </label>
+      <label>Product name
+        <input id="productName" type="text" value="Trending Style" />
+      </label>
+      <label>Category
+        <input id="category" type="text" value="Fashion" />
+      </label>
+      <label>Price <span class="optional">optional</span>
+        <input id="price" type="text" placeholder="₹999" />
+      </label>
+
+      <label>Template
+        <select id="template">
+          <option value="clean-product">Clean Product</option>
+          <option value="deal-alert">Deal Alert</option>
+          <option value="style-inspiration">Style Inspiration</option>
+        </select>
+      </label>
+
+      <button id="generate">Generate creative</button>
+      <button id="download" class="secondary" disabled>Download PNG</button>
+      <p id="status" class="status" aria-live="polite"></p>
+    </section>
+
+    <section class="panel preview-panel">
+      <div class="canvas-wrap">
+        <canvas id="creative" width="1000" height="1500"></canvas>
+      </div>
+      <div class="variant-row">
+        <button data-template="clean-product">Clean</button>
+        <button data-template="deal-alert">Deal</button>
+        <button data-template="style-inspiration">Style</button>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

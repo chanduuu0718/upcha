@@ -1,0 +1,16 @@
+{
+  "source": "myntra",
+  "productId": "41247582",
+  "url": "https://www.myntra.com/mailers/topwear/force/force-men-printed-high-neck-t-shirt/41247582/buy",
+  "brand": "Force",
+  "name": "Men Printed High Neck T-shirt",
+  "category": "Men's T-shirts",
+  "price": 499,
+  "mrp": 1999,
+  "discountPercent": 75,
+  "rating": 3.6,
+  "ratingCount": 86,
+  "color": "Pink",
+  "features": ["Graphic Printed", "High Neck", "Three-quarter Regular Sleeves", "Knitted Cotton fabric", "Relaxed Fit"],
+  "testStatus": "metadata-verified-from-public-product-page"
+}

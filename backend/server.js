@@ -3,6 +3,7 @@ import { URL } from 'node:url';
 
 const PORT = Number(process.env.PORT || 3001);
 const HOST = process.env.HOST || '127.0.0.1';
+const MYNTRA_TIMEOUT_MS = Number(process.env.MYNTRA_TIMEOUT_MS || 12000);
 
 function sendJson(res, status, body) {
   res.writeHead(status, {
@@ -28,8 +29,9 @@ function clean(value = '') {
 }
 
 function firstMeta(html, property) {
-  const pattern = new RegExp(`<meta[^>]+(?:property|name)=["']${property.replace(':', '\\:')}["'][^>]+content=["']([^"']+)["'][^>]*>`, 'i');
-  const reverse = new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']${property.replace(':', '\\:')}["'][^>]*>`, 'i');
+  const escaped = property.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(`<meta[^>]+(?:property|name)=["']${escaped}["'][^>]+content=["']([^"']+)["'][^>]*>`, 'i');
+  const reverse = new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']${escaped}["'][^>]*>`, 'i');
   return decodeHtml(html.match(pattern)?.[1] || html.match(reverse)?.[1] || '');
 }
 
@@ -76,13 +78,28 @@ async function fetchMyntraProduct(rawUrl) {
   const productId = match?.[1] || null;
   if (!productId) throw new Error('Could not identify a Myntra product ID from this URL.');
 
-  const response = await fetch(url, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (compatible; Upcha/1.0; +https://github.com/chanduuu0718/upcha)',
-      Accept: 'text/html,application/xhtml+xml',
-    },
-    redirect: 'follow',
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), MYNTRA_TIMEOUT_MS);
+
+  let response;
+  try {
+    response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/151 Safari/537.36',
+        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-IN,en;q=0.9',
+      },
+      redirect: 'follow',
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error?.name === 'AbortError') {
+      throw new Error(`Myntra did not respond within ${MYNTRA_TIMEOUT_MS / 1000} seconds. Try again or use the product's supported catalog/API source.`);
+    }
+    throw new Error(`Could not reach Myntra: ${error?.message || 'network error'}`);
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) throw new Error(`Myntra returned HTTP ${response.status}.`);
   const html = await response.text();

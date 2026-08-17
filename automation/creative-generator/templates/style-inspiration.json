@@ -1,0 +1,12 @@
+{
+  "id": "style-inspiration",
+  "canvas": { "width": 1000, "height": 1500 },
+  "purpose": "Style and discovery-focused Pinterest creative",
+  "layers": [
+    { "type": "eyebrow", "text": "YOUR NEXT LOOK" },
+    { "type": "product-image", "source": "{{imageUrl}}" },
+    { "type": "headline", "text": "{{headline}}" },
+    { "type": "supporting-text", "text": "{{supportingText}}" },
+    { "type": "cta", "text": "DISCOVER MORE →" }
+  ]
+}

@@ -11,7 +11,7 @@
       <section class="card">
         <p class="eyebrow">UPCHA · V1</p>
         <h1>Select a Myntra product</h1>
-        <p class="subtitle">Paste a Myntra product URL to prepare it for the ExtraPe → Pinterest workflow.</p>
+        <p class="subtitle">Paste a Myntra product URL to prepare it for the Cuelinks → Pinterest workflow.</p>
         <form id="product-form">
           <label for="myntra-url">Myntra product URL</label>
           <div class="url-row">
@@ -39,7 +39,7 @@
       <section id="selected" class="card success hidden">
         <strong>Product selected ✓</strong>
         <p id="selected-message"></p>
-        <p class="muted">Creative generated below. ExtraPe conversion and Pinterest publishing remain separate approval steps.</p>
+        <p class="muted">Creative generated below. Affiliate conversion is handled securely by the backend.</p>
       </section>
 
       <section id="creative" class="card creative-card hidden">
@@ -49,6 +49,19 @@
           <p class="muted">Preview the creative before publishing. Product facts come from the selected product record.</p>
         </div>
         <canvas id="creative-canvas" width="1000" height="1500" aria-label="Pinterest creative preview"></canvas>
+      </section>
+
+      <section id="affiliate" class="card hidden">
+        <p class="eyebrow">CUELINKS</p>
+        <h2>Affiliate link</h2>
+        <p class="muted">Convert the selected Myntra URL through your Cuelinks account.</p>
+        <button id="convert-affiliate" type="button">Convert with Cuelinks</button>
+        <p id="affiliate-error" class="error" role="alert"></p>
+        <div id="affiliate-result" class="affiliate-result hidden">
+          <strong id="affiliate-status">Affiliate link ready ✓</strong>
+          <p><a id="affiliate-link" href="#" target="_blank" rel="noopener noreferrer"></a></p>
+          <p id="affiliate-campaign" class="muted"></p>
+        </div>
       </section>
     </main>
     <script src="./app.js" type="module"></script>

@@ -1,0 +1,12 @@
+{
+  "id": "deal-alert",
+  "canvas": { "width": 1000, "height": 1500 },
+  "purpose": "Deal-focused Pinterest creative",
+  "layers": [
+    { "type": "eyebrow", "text": "DEAL ALERT" },
+    { "type": "product-image", "source": "{{imageUrl}}" },
+    { "type": "headline", "text": "{{headline}}" },
+    { "type": "price", "text": "{{price}}" },
+    { "type": "cta", "text": "DISCOVER DEAL →" }
+  ]
+}

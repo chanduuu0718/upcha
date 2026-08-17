@@ -4,10 +4,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node --watch server.js",
-    "start": "node server.js"
+    "dev": "node --env-file=../.env --watch server.js",
+    "start": "node --env-file=../.env server.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.6"
   }
 }

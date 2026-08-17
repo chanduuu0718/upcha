@@ -1,0 +1,8 @@
+{
+  "sourceUrl": "https://www.myntra.com/mailers/topwear/force/force-men-printed-high-neck-t-shirt/41247582/buy",
+  "productId": "41247582",
+  "expected": {
+    "nameContains": "Force",
+    "imageUrlRequired": true
+  }
+}

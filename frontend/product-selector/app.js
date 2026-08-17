@@ -1,5 +1,6 @@
 import { renderCreative } from './creative.js';
 
+const API_BASE = window.UPCHA_API_BASE || 'http://localhost:3001';
 const form = document.querySelector('#product-form');
 const input = document.querySelector('#myntra-url');
 const error = document.querySelector('#error');
@@ -7,26 +8,9 @@ const preview = document.querySelector('#preview');
 const selected = document.querySelector('#selected');
 const selectButton = document.querySelector('#select-product');
 const creative = document.querySelector('#creative');
+const imagePlaceholder = document.querySelector('#image-placeholder');
 
 let currentProduct = null;
-
-const demoProducts = {
-  '41247582': {
-    productId: '41247582',
-    brand: 'Force',
-    name: 'Men Printed High Neck T-shirt',
-    category: "Men's T-shirts",
-    color: 'Pink',
-    price: 499,
-    mrp: 1999,
-    discountPercent: 75,
-    rating: 3.6,
-    ratingCount: 86,
-    fit: 'Relaxed Fit',
-    material: 'Knitted Cotton',
-    imageUrl: null,
-  },
-};
 
 function isMyntraUrl(value) {
   try {
@@ -37,17 +21,25 @@ function isMyntraUrl(value) {
   }
 }
 
-function productIdFromUrl(value) {
-  const match = value.match(/\/(\d+)\/buy(?:\?|$)/i);
-  return match?.[1] || null;
-}
-
 function showProduct(product, url) {
   currentProduct = { ...product, url };
-  document.querySelector('#product-name').textContent = `${product.brand} — ${product.name}`;
+  document.querySelector('#product-name').textContent = product.name || 'Myntra product';
   document.querySelector('#product-url').textContent = url;
-  document.querySelector('#product-price').textContent = `₹${product.price} · ${product.discountPercent}% OFF`;
-  document.querySelector('#product-category').textContent = `${product.category} · ${product.color}`;
+  document.querySelector('#product-price').textContent = product.price ? `₹${product.price}` : 'Not available';
+  document.querySelector('#product-category').textContent = product.category || 'Myntra product';
+
+  imagePlaceholder.replaceChildren();
+  if (product.imageUrl) {
+    const image = document.createElement('img');
+    image.src = product.imageUrl;
+    image.alt = product.name || 'Product image';
+    image.referrerPolicy = 'no-referrer';
+    image.className = 'product-image';
+    imagePlaceholder.appendChild(image);
+  } else {
+    imagePlaceholder.textContent = 'Product image unavailable';
+  }
+
   preview.classList.remove('hidden');
   selected.classList.add('hidden');
   creative.classList.add('hidden');
@@ -63,15 +55,21 @@ form.addEventListener('submit', async (event) => {
     return;
   }
 
-  const id = productIdFromUrl(url);
-  const product = demoProducts[id];
+  const button = form.querySelector('button[type="submit"]');
+  button.disabled = true;
+  button.textContent = 'Fetching…';
 
-  if (!product) {
-    error.textContent = 'Product URL is valid, but live product metadata is not connected yet.';
-    return;
+  try {
+    const response = await fetch(`${API_BASE}/api/products/from-url?url=${encodeURIComponent(url)}`);
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Product retrieval failed.');
+    showProduct(payload, url);
+  } catch (err) {
+    error.textContent = err.message || 'Could not retrieve the product.';
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Fetch product';
   }
-
-  showProduct(product, url);
 });
 
 selectButton.addEventListener('click', () => {

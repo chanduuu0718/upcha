@@ -8,46 +8,61 @@ export function renderCreative(product) {
 
     const width = canvas.width;
     const height = canvas.height;
-    const imageBox = { x: 70, y: 330, w: 860, h: 720 };
+    const imageBox = { x: 80, y: 130, w: 840, h: 980 };
 
     ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = '#f7f4ef';
+    ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, width, height);
 
-    ctx.fillStyle = '#111111';
-    ctx.font = '800 34px Arial';
-    ctx.fillText('UPCHA STYLE FIND', 70, 90);
+    const name = product.name || 'Featured product';
+    const price = product.price != null ? `₹${product.price}` : '';
+    const originalPrice = product.originalPrice != null ? `₹${product.originalPrice}` : '';
+    const discount = product.discountPercent != null ? `${product.discountPercent}% OFF` : '';
+    const retailer = product.retailer || 'Online Store';
 
-    ctx.fillStyle = '#7a1f2b';
-    ctx.font = '800 72px Arial';
-    ctx.fillText('TRENDING', 70, 180);
-    ctx.fillStyle = '#111111';
-    ctx.fillText("MEN'S STYLE", 70, 260);
-
-    ctx.fillStyle = '#ebe6df';
+    ctx.fillStyle = '#f5f5f5';
     ctx.fillRect(imageBox.x, imageBox.y, imageBox.w, imageBox.h);
 
     const drawDetails = () => {
       ctx.fillStyle = '#111111';
-      ctx.font = '700 42px Arial';
-      const name = product.name || 'Featured product';
-      const maxWidth = 860;
-      let title = name;
-      while (ctx.measureText(title).width > maxWidth && title.length > 10) title = `${title.slice(0, -4)}...`;
-      ctx.fillText(title, 70, 1150);
+      ctx.font = '800 46px Arial';
+      const maxWidth = 840;
+      const words = name.split(/\s+/);
+      const lines = [];
+      let line = '';
+      for (const word of words) {
+        const test = line ? `${line} ${word}` : word;
+        if (ctx.measureText(test).width > maxWidth && line) {
+          lines.push(line);
+          line = word;
+        } else line = test;
+      }
+      if (line) lines.push(line);
+      lines.slice(0, 3).forEach((text, index) => ctx.fillText(text, 80, 1190 + index * 58));
 
-      ctx.font = '700 48px Arial';
-      if (product.price != null) ctx.fillText(`₹${product.price}`, 70, 1230);
+      let y = 1375;
+      if (price) {
+        ctx.fillStyle = '#111111';
+        ctx.font = '800 58px Arial';
+        ctx.fillText(price, 80, y);
+      }
+      if (originalPrice) {
+        const priceX = price ? 80 + ctx.measureText(price).width + 28 : 80;
+        ctx.fillStyle = '#777777';
+        ctx.font = '400 34px Arial';
+        ctx.fillText(originalPrice, priceX, y);
+      }
+      if (discount) {
+        ctx.fillStyle = '#111111';
+        ctx.font = '800 32px Arial';
+        ctx.fillText(discount, 80, y + 55);
+      }
 
       ctx.fillStyle = '#111111';
-      ctx.font = '800 34px Arial';
-      ctx.fillText('SHOP THE LOOK →', 70, 1380);
+      ctx.font = '700 34px Arial';
+      ctx.fillText(`${retailer}  •  SHOP NOW →`, 80, 1470);
 
-      try {
-        resolve(canvas.toDataURL('image/png'));
-      } catch {
-        resolve(null);
-      }
+      try { resolve(canvas.toDataURL('image/png')); } catch { resolve(null); }
     };
 
     if (!product.imageUrl) {

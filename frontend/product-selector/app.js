@@ -34,7 +34,7 @@ function supportedRetailer(value) {
 }
 
 function getImageUrls(product) {
-  const urls = Array.isArray(product.imageUrls) ? product.imageUrls : [];
+  const urls = Array.isArray(product.imageUrls) ? [...product.imageUrls] : [];
   if (product.imageUrl && !urls.includes(product.imageUrl)) urls.unshift(product.imageUrl);
   return [...new Set(urls.filter(Boolean))].slice(0, 12);
 }
@@ -60,6 +60,7 @@ function renderImagePicker() {
     image.src = url;
     image.alt = `${currentProduct?.name || 'Product'} image ${index + 1}`;
     image.referrerPolicy = 'no-referrer';
+    image.className = 'product-image';
     image.onerror = () => button.classList.add('image-error');
 
     const check = document.createElement('span');
@@ -71,13 +72,17 @@ function renderImagePicker() {
       const exists = selectedImageUrls.includes(url);
       if (exists) selectedImageUrls = selectedImageUrls.filter((item) => item !== url);
       else if (selectedImageUrls.length < 4) selectedImageUrls = [...selectedImageUrls, url];
-      else { error.textContent = 'You can select a maximum of 4 images.'; return; }
+      else {
+        error.textContent = 'You can select a maximum of 4 images.';
+        return;
+      }
       error.textContent = '';
       if (currentProduct) currentProduct.selectedImageUrls = [...selectedImageUrls];
       renderImagePicker();
     });
     imagePicker.appendChild(button);
   });
+
   if (imageCount) imageCount.textContent = `${selectedImageUrls.length} / 4 selected`;
 }
 
@@ -102,11 +107,13 @@ function showProduct(product, url) {
     image.className = 'product-image';
     image.onerror = () => { imagePlaceholder.textContent = 'Product image could not be displayed.'; };
     imagePlaceholder.appendChild(image);
-  } else imagePlaceholder.textContent = 'Product image unavailable';
+  } else {
+    imagePlaceholder.textContent = 'Product image unavailable';
+  }
 
   renderImagePicker();
   preview.classList.remove('hidden');
-  imageSelection.classList.remove('hidden');
+  imageSelection?.classList.remove('hidden');
   selected.classList.add('hidden');
   creative.classList.add('hidden');
   affiliate.classList.add('hidden');
@@ -115,11 +122,19 @@ function showProduct(product, url) {
 }
 
 async function selectProduct() {
-  if (!currentProduct) { error.textContent = 'Fetch a product first.'; return; }
-  if (!selectedImageUrls.length) { error.textContent = 'Select at least 1 product image.'; return; }
+  if (!currentProduct) {
+    error.textContent = 'Fetch a product first.';
+    return;
+  }
+  if (!selectedImageUrls.length) {
+    error.textContent = 'Select at least 1 product image.';
+    return;
+  }
+
   selectButton.disabled = true;
   selectButton.textContent = 'Creating…';
   error.textContent = '';
+
   try {
     currentProduct.selectedImageUrls = [...selectedImageUrls];
     selectedMessage.textContent = `Selected: ${currentProduct.name || 'Product'} · ${selectedImageUrls.length} image${selectedImageUrls.length === 1 ? '' : 's'}`;
@@ -143,22 +158,37 @@ form.addEventListener('submit', async (event) => {
   error.textContent = '';
   const url = input.value.trim();
   const detected = supportedRetailer(url);
-  if (!detected) { error.textContent = 'Please paste a valid Myntra or Nykaa Fashion product URL.'; return; }
+
+  if (!detected) {
+    error.textContent = 'Please paste a valid Myntra or Nykaa Fashion product URL.';
+    return;
+  }
+
   if (retailerSelect) retailerSelect.value = detected;
 
   const button = form.querySelector('button[type="submit"]');
   button.disabled = true;
   button.textContent = 'Fetching…';
+
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
-    const response = await fetch(`${API_BASE}/api/products/from-url?url=${encodeURIComponent(url)}`, { signal: controller.signal });
-    clearTimeout(timeout);
+    let response;
+    try {
+      response = await fetch(`${API_BASE}/api/products/from-url?url=${encodeURIComponent(url)}`, {
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
+
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || 'Product retrieval failed.');
     showProduct(payload, url);
   } catch (err) {
-    error.textContent = err.name === 'AbortError' ? 'Product retrieval timed out. Please try again.' : (err.message || 'Could not retrieve the product.');
+    error.textContent = err.name === 'AbortError'
+      ? 'Product retrieval timed out. Please try again.'
+      : (err.message || 'Could not retrieve the product.');
   } finally {
     button.disabled = false;
     button.textContent = 'Fetch product';
@@ -173,18 +203,32 @@ convertButton.addEventListener('click', async () => {
   affiliateResult.classList.add('hidden');
   convertButton.disabled = true;
   convertButton.textContent = 'Converting…';
+
   try {
     const response = await fetch(`${API_BASE}/api/affiliate/convert`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: currentProduct.url }),
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: currentProduct.url }),
     });
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || 'Cuelinks conversion failed.');
+
     const destination = payload.shortUrl || payload.trackingUrl;
     affiliateLink.href = destination;
     affiliateLink.textContent = destination;
-    affiliateCampaign.textContent = payload.campaign ? `Campaign: ${payload.campaign.name}` : 'No campaign matched this URL.';
-    document.querySelector('#affiliate-status').textContent = payload.affiliated ? 'Affiliate link ready ✓' : 'Tracking link created — commission eligibility not confirmed';
+    affiliateCampaign.textContent = payload.campaign
+      ? `Campaign: ${payload.campaign.name}`
+      : 'No campaign matched this URL.';
+
+    document.querySelector('#affiliate-status').textContent = payload.affiliated
+      ? 'Affiliate link ready ✓'
+      : 'Tracking link created — commission eligibility not confirmed';
+
     affiliateResult.classList.remove('hidden');
-  } catch (err) { affiliateError.textContent = err.message || 'Could not convert the URL.'; }
-  finally { convertButton.disabled = false; convertButton.textContent = 'Convert with Cuelinks'; }
+  } catch (err) {
+    affiliateError.textContent = err.message || 'Could not convert the URL.';
+  } finally {
+    convertButton.disabled = false;
+    convertButton.textContent = 'Convert with Cuelinks';
+  }
 });

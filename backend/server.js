@@ -1,7 +1,7 @@
 import http from 'node:http';
 import { URL } from 'node:url';
 
-const PORT = Number(process.env.PORT || 3001);
+const PORT = Number(process.env.PORT || 3002);
 const HOST = process.env.HOST || '127.0.0.1';
 const PRODUCT_TIMEOUT_MS = Number(process.env.PRODUCT_TIMEOUT_MS || 12000);
 const CUELINKS_API_URL = 'https://developers.cuelinks.com/pub_api/v3/links/convert';
@@ -44,12 +44,25 @@ function jsonLdProducts(html) {
   return values;
 }
 
+function normalizeImages(image) {
+  const values = Array.isArray(image) ? image : [image];
+  return [...new Set(values.flatMap((item) => {
+    if (typeof item === 'string') return [decodeHtml(item)];
+    if (item?.url) return [decodeHtml(item.url)];
+    if (item?.contentUrl) return [decodeHtml(item.contentUrl)];
+    return [];
+  }).filter(Boolean))].slice(0, 12);
+}
+
 function findProductData(html, productId, retailer) {
   const jsonLd = jsonLdProducts(html);
   const product = jsonLd.find((item) => item?.['@type'] === 'Product') || jsonLd.find((item) => item?.name && item?.image);
   const offers = product?.offers;
   const offer = Array.isArray(offers) ? offers[0] : offers;
-  const image = Array.isArray(product?.image) ? product.image[0] : product?.image;
+  const imageUrls = normalizeImages(product?.image);
+  const fallbackImage = firstMeta(html, 'og:image');
+  if (fallbackImage && !imageUrls.includes(fallbackImage)) imageUrls.push(fallbackImage);
+  const image = imageUrls[0] || null;
   const rawPrice = offer?.price ?? offer?.lowPrice;
   const price = rawPrice != null && !Number.isNaN(Number(rawPrice)) ? Number(rawPrice) : null;
 
@@ -71,7 +84,8 @@ function findProductData(html, productId, retailer) {
     productId,
     name: clean(product?.name || firstMeta(html, 'og:title')),
     description: clean(product?.description || firstMeta(html, 'description')),
-    imageUrl: decodeHtml(image || firstMeta(html, 'og:image')) || null,
+    imageUrl: image,
+    imageUrls,
     price,
     originalPrice,
     discountPercent,
@@ -115,7 +129,7 @@ async function fetchProduct(rawUrl) {
   } finally { clearTimeout(timeout); }
   if (!response.ok) throw new Error(`${retailer} returned HTTP ${response.status}.`);
   const html = await response.text();
-  const productId = url.pathname.match(/(?:\/|-) (\d{4,})(?:\/|$)/)?.[1] || null;
+  const productId = url.pathname.match(/(?:\/|-)(\d{4,})(?:\/|$)/)?.[1] || null;
   const product = findProductData(html, productId, retailer);
   if (!product.name && !product.imageUrl) throw new Error(`${retailer} did not expose usable public product metadata.`);
   return { ...product, url: response.url };

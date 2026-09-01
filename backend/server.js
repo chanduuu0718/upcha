@@ -17,7 +17,14 @@ function sendJson(res, status, body) {
 }
 
 function decodeHtml(value = '') {
-  return value.replaceAll('&amp;', '&').replaceAll('&quot;', '"').replaceAll('&#39;', "'").replaceAll('&lt;', '<').replaceAll('&gt;', '>');
+  return value
+    .replaceAll('&amp;', '&')
+    .replaceAll('&quot;', '"')
+    .replaceAll('&#39;', "'")
+    .replaceAll('&lt;', '<')
+    .replaceAll('&gt;', '>')
+    .replaceAll('\\/', '/')
+    .replaceAll('\\u002F', '/');
 }
 
 function clean(value = '') {
@@ -54,6 +61,33 @@ function normalizeImages(image) {
   }).filter(Boolean))].slice(0, 12);
 }
 
+function extractPageImages(html, retailer) {
+  const candidates = [];
+  const add = (value) => {
+    const decoded = decodeHtml(value || '').replace(/\\u0026/g, '&');
+    if (!decoded || !/^https?:\/\//i.test(decoded)) return;
+    if (!/\.(?:jpe?g|png|webp)(?:[?#]|$)/i.test(decoded) && !/image|catalog|product|nykdesignstudio/i.test(decoded)) return;
+    candidates.push(decoded);
+  };
+
+  // Nykaa Fashion embeds additional product-gallery images in page JSON/state,
+  // while JSON-LD commonly exposes only the first image. Pick up those URLs too.
+  if (retailer === 'Nykaa Fashion') {
+    const nykaaUrlPattern = /https?:\\?\/?\\?\/?(?:adn-static\d+\.)?nykaa\.com[^"'\\\s<>]+/gi;
+    for (const match of html.matchAll(nykaaUrlPattern)) add(match[0]);
+    const designStudioPattern = /https?:\\?\/?\\?\/?cdn\d*\.nykaa\.com[^"'\\\s<>]+|https?:\\?\/?\\?\/?adn-static\d*\.nykaa\.com[^"'\\\s<>]+/gi;
+    for (const match of html.matchAll(designStudioPattern)) add(match[0]);
+  }
+
+  // Also inspect normal img/srcset attributes as a generic fallback.
+  for (const match of html.matchAll(/(?:src|data-src|data-original|srcset)=["']([^"']+)["']/gi)) {
+    const value = match[1].split(',')[0].trim().split(/\s+/)[0];
+    if (/^https?:\/\//i.test(value)) add(value);
+  }
+
+  return [...new Set(candidates)].slice(0, 12);
+}
+
 function findProductData(html, productId, retailer) {
   const jsonLd = jsonLdProducts(html);
   const product = jsonLd.find((item) => item?.['@type'] === 'Product') || jsonLd.find((item) => item?.name && item?.image);
@@ -62,6 +96,9 @@ function findProductData(html, productId, retailer) {
   const imageUrls = normalizeImages(product?.image);
   const fallbackImage = firstMeta(html, 'og:image');
   if (fallbackImage && !imageUrls.includes(fallbackImage)) imageUrls.push(fallbackImage);
+  for (const image of extractPageImages(html, retailer)) {
+    if (!imageUrls.includes(image)) imageUrls.push(image);
+  }
   const image = imageUrls[0] || null;
   const rawPrice = offer?.price ?? offer?.lowPrice;
   const price = rawPrice != null && !Number.isNaN(Number(rawPrice)) ? Number(rawPrice) : null;
@@ -85,7 +122,7 @@ function findProductData(html, productId, retailer) {
     name: clean(product?.name || firstMeta(html, 'og:title')),
     description: clean(product?.description || firstMeta(html, 'description')),
     imageUrl: image,
-    imageUrls,
+    imageUrls: [...new Set(imageUrls)].slice(0, 12),
     price,
     originalPrice,
     discountPercent,

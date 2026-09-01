@@ -10,12 +10,17 @@
     <main class="container">
       <section class="card">
         <p class="eyebrow">UPCHA · V1</p>
-        <h1>Select a Myntra product</h1>
-        <p class="subtitle">Paste a Myntra product URL to prepare it for the Cuelinks → Pinterest workflow.</p>
+        <h1>Select a product</h1>
+        <p class="subtitle">Paste a Myntra or Nykaa Fashion product URL to prepare a simple product-focused promotional poster and Cuelinks affiliate link.</p>
         <form id="product-form">
-          <label for="myntra-url">Myntra product URL</label>
+          <label for="retailer">Store</label>
+          <select id="retailer" aria-label="Detected store">
+            <option value="Myntra">Myntra</option>
+            <option value="Nykaa Fashion">Nykaa Fashion</option>
+          </select>
+          <label for="product-url-input">Product URL</label>
           <div class="url-row">
-            <input id="myntra-url" name="url" type="url" placeholder="https://www.myntra.com/..." required />
+            <input id="product-url-input" name="url" type="url" placeholder="https://www.nykaafashion.com/..." required />
             <button type="submit">Fetch product</button>
           </div>
           <p id="error" class="error" role="alert"></p>
@@ -23,12 +28,13 @@
       </section>
 
       <section id="preview" class="card preview hidden" aria-live="polite">
-        <div class="preview-placeholder" id="image-placeholder">Product image will appear here when supported image retrieval is connected.</div>
+        <div class="preview-placeholder" id="image-placeholder">Product image will appear here.</div>
         <div class="preview-content">
           <p class="eyebrow">PRODUCT PREVIEW</p>
           <h2 id="product-name">—</h2>
           <p id="product-url" class="muted">—</p>
           <dl>
+            <div><dt>Store</dt><dd id="product-retailer">—</dd></div>
             <div><dt>Price</dt><dd id="product-price">—</dd></div>
             <div><dt>Category</dt><dd id="product-category">—</dd></div>
           </dl>
@@ -39,22 +45,22 @@
       <section id="selected" class="card success hidden">
         <strong>Product selected ✓</strong>
         <p id="selected-message"></p>
-        <p class="muted">Creative generated below. Affiliate conversion is handled securely by the backend.</p>
+        <p class="muted">Simple product-focused creative generated below.</p>
       </section>
 
       <section id="creative" class="card creative-card hidden">
         <div>
-          <p class="eyebrow">PINTEREST CREATIVE</p>
-          <h2>New promotional image</h2>
-          <p class="muted">Preview the creative before publishing. Product facts come from the selected product record.</p>
+          <p class="eyebrow">PRODUCT CREATIVE</p>
+          <h2>Simple promotional image</h2>
+          <p class="muted">Only the product, product name, price/discount and store call-to-action are shown.</p>
         </div>
-        <canvas id="creative-canvas" width="1000" height="1500" aria-label="Pinterest creative preview"></canvas>
+        <canvas id="creative-canvas" width="1000" height="1500" aria-label="Product promotional creative preview"></canvas>
       </section>
 
       <section id="affiliate" class="card hidden">
         <p class="eyebrow">CUELINKS</p>
         <h2>Affiliate link</h2>
-        <p class="muted">Convert the selected Myntra URL through your Cuelinks account.</p>
+        <p class="muted">Convert the selected product URL through your Cuelinks account.</p>
         <button id="convert-affiliate" type="button">Convert with Cuelinks</button>
         <p id="affiliate-error" class="error" role="alert"></p>
         <div id="affiliate-result" class="affiliate-result hidden">

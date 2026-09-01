@@ -5,6 +5,7 @@ const form = document.querySelector('#product-form');
 const input = document.querySelector('#product-url-input');
 const error = document.querySelector('#error');
 const preview = document.querySelector('#preview');
+const imageSelection = document.querySelector('#image-selection');
 const selected = document.querySelector('#selected');
 const selectButton = document.querySelector('#select-product');
 const creative = document.querySelector('#creative');
@@ -43,7 +44,7 @@ function renderImagePicker() {
   imagePicker.replaceChildren();
   const urls = getImageUrls(currentProduct || {});
   if (!urls.length) {
-    imagePicker.textContent = 'No additional product images were found.';
+    imagePicker.textContent = 'No product images were found.';
     if (imageCount) imageCount.textContent = '0 / 4 selected';
     return;
   }
@@ -68,15 +69,11 @@ function renderImagePicker() {
     button.append(image, check);
     button.addEventListener('click', () => {
       const exists = selectedImageUrls.includes(url);
-      if (exists) {
-        selectedImageUrls = selectedImageUrls.filter((item) => item !== url);
-      } else if (selectedImageUrls.length < 4) {
-        selectedImageUrls = [...selectedImageUrls, url];
-      } else {
-        error.textContent = 'You can select a maximum of 4 images.';
-        return;
-      }
+      if (exists) selectedImageUrls = selectedImageUrls.filter((item) => item !== url);
+      else if (selectedImageUrls.length < 4) selectedImageUrls = [...selectedImageUrls, url];
+      else { error.textContent = 'You can select a maximum of 4 images.'; return; }
       error.textContent = '';
+      if (currentProduct) currentProduct.selectedImageUrls = [...selectedImageUrls];
       renderImagePicker();
     });
     imagePicker.appendChild(button);
@@ -88,7 +85,7 @@ function showProduct(product, url) {
   currentProduct = { ...product, url };
   const urls = getImageUrls(currentProduct);
   selectedImageUrls = urls.slice(0, 4);
-  currentProduct.selectedImageUrls = selectedImageUrls;
+  currentProduct.selectedImageUrls = [...selectedImageUrls];
 
   document.querySelector('#product-name').textContent = product.name || 'Product';
   document.querySelector('#product-url').textContent = url;
@@ -109,6 +106,7 @@ function showProduct(product, url) {
 
   renderImagePicker();
   preview.classList.remove('hidden');
+  imageSelection.classList.remove('hidden');
   selected.classList.add('hidden');
   creative.classList.add('hidden');
   affiliate.classList.add('hidden');

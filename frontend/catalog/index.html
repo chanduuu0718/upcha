@@ -3,35 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Upcha product search — find products by Product ID or keyword.">
+  <meta name="description" content="Upcha — search products by Product ID or keyword and shop through the affiliate link.">
   <title>Upcha — Product Search</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <header class="site-header">
-    <div class="brand">Upcha</div>
-    <div class="brand-subtitle">Product discovery</div>
+    <a class="brand" href="./" aria-label="Upcha home">upcha</a>
+    <span class="brand-divider"></span>
+    <span class="header-label">Product search</span>
   </header>
 
   <main class="page">
     <section class="hero">
-      <p class="eyebrow">UPCHA</p>
-      <h1>Find your product</h1>
-      <p class="hero-copy">Search by Product ID or keyword to view the product details, poster and shopping link.</p>
+      <span class="eyebrow">UPCHA PRODUCT CATALOG</span>
+      <h1>Find your product.</h1>
+      <p class="hero-copy">Enter the Product ID or a keyword to view the product poster, details and shopping link.</p>
+
       <form id="search-form" class="search-form" role="search">
         <label class="sr-only" for="search-input">Product ID or keyword</label>
-        <input id="search-input" type="search" placeholder="Enter Product ID or search keyword" autocomplete="off">
+        <input id="search-input" type="search" placeholder="Search by Product ID or keyword" autocomplete="off" spellcheck="false">
         <button type="submit">Search</button>
       </form>
-      <p class="hint">Example: <strong>UP001</strong> or <strong>white sneakers</strong></p>
+
+      <p class="search-note">You need a <strong>Product ID</strong> or keyword to find a product.</p>
     </section>
 
     <section id="results" class="results" aria-live="polite"></section>
 
     <section id="empty-state" class="empty-state">
-      <div class="empty-icon">⌕</div>
+      <div class="search-mark" aria-hidden="true">⌕</div>
       <h2>Search for a product</h2>
-      <p>Enter a Product ID or keyword above to get started.</p>
+      <p>Enter a Product ID such as <strong>UP001</strong> to get product details.</p>
     </section>
   </main>
 

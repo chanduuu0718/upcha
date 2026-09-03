@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Upcha Affiliate Products</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header"><div class="brand">upcha<span>.</span></div><a href="admin.html" class="admin-link">Admin Portal</a></header>
+  <main class="lookup-page">
+    <section class="lookup-card">
+      <div class="eyebrow">PRODUCT ACCESS</div>
+      <h1>Enter the code to get your product</h1>
+      <p class="muted">Use the product code shared with you on Instagram.</p>
+      <form id="lookupForm" class="lookup-form">
+        <label for="code">Product code</label>
+        <div class="code-row"><input id="code" name="code" autocomplete="off" placeholder="e.g. UPCHA12345" required /><button type="submit">Get Product</button></div>
+        <p id="lookupError" class="error" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

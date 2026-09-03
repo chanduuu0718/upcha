@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Upcha Admin | Products</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="admin-body">
+  <header class="site-header"><div class="brand">upcha<span>.</span></div><div class="admin-badge">Affiliate Product Manager</div><a href="index.html" class="admin-link">Public Page</a></header>
+  <main class="admin-shell">
+    <section class="admin-hero"><div><div class="eyebrow">ADMIN PORTAL</div><h1>Product Manager</h1><p class="muted">Publish products for Instagram visitors. Maximum 4 images per product.</p></div><button id="resetDemo" class="ghost">Reset demo</button></section>
+    <div class="admin-grid">
+      <section class="panel">
+        <div class="panel-title"><h2 id="formTitle">Add product</h2><button id="cancelEdit" class="text-btn hidden">Cancel edit</button></div>
+        <form id="productForm">
+          <div class="two"><div class="field"><label>Product code *</label><input id="pCode" required maxlength="32" placeholder="UPCHA12345" /></div><div class="field"><label>Status</label><select id="pStatus"><option value="published">Published</option><option value="draft">Draft</option><option value="hidden">Hidden</option></select></div></div>
+          <div class="field"><label>Product name *</label><input id="pName" required placeholder="Product name" /></div>
+          <div class="two"><div class="field"><label>Selling price *</label><input id="pPrice" required inputmode="decimal" placeholder="1499" /></div><div class="field"><label>Original price</label><input id="pOriginal" inputmode="decimal" placeholder="2999" /></div></div>
+          <div class="field"><label>Affiliate link *</label><input id="pLink" required type="url" placeholder="https://example.com/your-affiliate-link" /></div>
+          <div class="field"><label>Description</label><textarea id="pDescription" rows="4" placeholder="Short product description"></textarea></div>
+          <div class="field"><label>Product images (maximum 4)</label><input id="pImages" type="file" accept="image/*" multiple /><div id="imagePreview" class="upload-grid"></div><p class="hint">Images are stored in this browser for the prototype. Production should use cloud storage.</p></div>
+          <button class="primary full" type="submit"><span id="submitText">Publish product</span></button>
+        </form>
+      </section>
+      <section class="panel">
+        <div class="panel-title"><h2>Products</h2><span id="productCount" class="count">0</span></div>
+        <input id="search" class="search" placeholder="Search by code or product name" />
+        <div id="productList" class="product-list"></div>
+      </section>
+    </div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -175,7 +175,7 @@ form.addEventListener('submit', async (event) => {
     const timeout = setTimeout(() => controller.abort(), 15000);
     let response;
     try {
-      response = await fetch(`${API_BASE}/api/products/from-url?url=${encodeURIComponent(url)}`, {
+      response = await fetch(`${API_BASE}/products/from-url?url=${encodeURIComponent(url)}`, {
         signal: controller.signal,
       });
     } finally {
@@ -205,7 +205,7 @@ convertButton.addEventListener('click', async () => {
   convertButton.textContent = 'Converting…';
 
   try {
-    const response = await fetch(`${API_BASE}/api/affiliate/convert`, {
+    const response = await fetch(`${API_BASE}/affiliate/convert`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url: currentProduct.url }),

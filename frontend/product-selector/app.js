@@ -1,6 +1,6 @@
 import { renderCreative } from './creative.js';
 
-const API_BASE = window.UPCHA_API_BASE || 'http://127.0.0.1:3002';
+const API_BASE = window.UPCHA_API_BASE || '/api';
 const form = document.querySelector('#product-form');
 const input = document.querySelector('#product-url-input');
 const error = document.querySelector('#error');

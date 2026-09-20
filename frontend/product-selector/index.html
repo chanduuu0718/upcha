@@ -3,86 +3,136 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Upcha — Product Selector</title>
+    <meta name="description" content="Upcha turns Myntra and Nykaa Fashion product links into ready-to-share promotional creatives and affiliate links." />
+    <meta name="theme-color" content="#101828" />
+    <title>Upcha — Product content, ready to share</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <main class="container">
-      <section class="card">
-        <p class="eyebrow">UPCHA · V1</p>
-        <h1>Select a product</h1>
-        <p class="subtitle">Paste a Myntra or Nykaa Fashion product URL to prepare a simple product-focused promotional poster and Cuelinks affiliate link.</p>
-        <form id="product-form">
-          <label for="retailer">Store</label>
-          <select id="retailer" aria-label="Detected store">
-            <option value="Myntra">Myntra</option>
-            <option value="Nykaa Fashion">Nykaa Fashion</option>
-          </select>
-          <label for="product-url-input">Product URL</label>
-          <div class="url-row">
-            <input id="product-url-input" name="url" type="url" placeholder="https://www.nykaafashion.com/..." required />
-            <button type="submit">Fetch product</button>
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Upcha home"><span class="brand-mark">U</span><span>upcha</span></a>
+      <nav class="nav" aria-label="Primary">
+        <a href="#how">How it works</a>
+        <a href="#studio">Studio</a>
+        <a href="#affiliate">Affiliate</a>
+      </nav>
+      <a class="header-cta" href="#studio">Create a post <span>↗</span></a>
+    </header>
+
+    <main id="top" class="shell">
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="pulse"></span> UPCHA V1 · CREATOR WORKSPACE</div>
+          <h1>Turn a product link into <em>content people can click.</em></h1>
+          <p class="hero-subtitle">Bring a Myntra or Nykaa Fashion product into Upcha, pick the best images, create a clean promotional post and generate your affiliate link — all in one focused workflow.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#studio">Start creating <span>→</span></a>
+            <a class="text-link" href="#how">See how it works</a>
           </div>
-          <p id="error" class="error" role="alert"></p>
-        </form>
-      </section>
-
-      <section id="preview" class="card preview hidden" aria-live="polite">
-        <div class="preview-placeholder" id="image-placeholder">Product image will appear here.</div>
-        <div class="preview-content">
-          <p class="eyebrow">PRODUCT PREVIEW</p>
-          <h2 id="product-name">—</h2>
-          <p id="product-url" class="muted">—</p>
-          <dl>
-            <div><dt>Store</dt><dd id="product-retailer">—</dd></div>
-            <div><dt>Price</dt><dd id="product-price">—</dd></div>
-            <div><dt>Category</dt><dd id="product-category">—</dd></div>
-          </dl>
-          <button id="select-product" type="button">Select product</button>
-        </div>
-      </section>
-
-      <section id="image-selection" class="card image-selection hidden" aria-live="polite">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">PRODUCT IMAGES</p>
-            <h2>Choose up to 4 images</h2>
-            <p class="muted">When the product has multiple photos or poses, choose the images you want in one promotional post.</p>
+          <div class="hero-proof">
+            <span>✓ No design software</span>
+            <span>✓ Up to 4 product images</span>
+            <span>✓ Cuelinks-ready</span>
           </div>
-          <strong id="image-count">0 / 4 selected</strong>
         </div>
-        <div id="image-picker" class="image-picker"></div>
-        <p class="selection-hint">Click an image to select or remove it. Upcha will combine the selected images into one clean product-focused post.</p>
-      </section>
-
-      <section id="selected" class="card success hidden">
-        <strong>Product selected ✓</strong>
-        <p id="selected-message"></p>
-        <p class="muted">Simple product-focused creative generated below.</p>
-      </section>
-
-      <section id="creative" class="card creative-card hidden">
-        <div>
-          <p class="eyebrow">PRODUCT CREATIVE</p>
-          <h2>Simple promotional image</h2>
-          <p class="muted">Selected product images are combined with only the product name, price/discount, store and SHOP NOW call-to-action.</p>
-        </div>
-        <canvas id="creative-canvas" width="1000" height="1500" aria-label="Product promotional creative preview"></canvas>
-      </section>
-
-      <section id="affiliate" class="card hidden">
-        <p class="eyebrow">CUELINKS</p>
-        <h2>Affiliate link</h2>
-        <p class="muted">Convert the selected product URL through your Cuelinks account.</p>
-        <button id="convert-affiliate" type="button">Convert with Cuelinks</button>
-        <p id="affiliate-error" class="error" role="alert"></p>
-        <div id="affiliate-result" class="affiliate-result hidden">
-          <strong id="affiliate-status">Affiliate link ready ✓</strong>
-          <p><a id="affiliate-link" href="#" target="_blank" rel="noopener noreferrer"></a></p>
-          <p id="affiliate-campaign" class="muted"></p>
+        <div class="hero-visual" aria-label="Upcha creative preview">
+          <div class="visual-window">
+            <div class="window-top"><span></span><span></span><span></span><b>UPCHA / CREATIVE</b></div>
+            <div class="visual-grid">
+              <div class="visual-image"><div class="mock-product">UPCHA</div><span class="image-badge">PRODUCT</span></div>
+              <div class="visual-info">
+                <span class="mini-label">READY TO SHARE</span>
+                <h3>Product content, without the busywork.</h3>
+                <div class="mock-line"></div><div class="mock-line short"></div>
+                <div class="mock-price"><strong>₹1,299</strong><span>45% OFF</span></div>
+                <button type="button" class="mock-button">SHOP NOW →</button>
+              </div>
+            </div>
+          </div>
+          <div class="floating-card"><span class="floating-icon">✦</span><div><strong>Creative ready</strong><small>Product + price + CTA</small></div></div>
         </div>
       </section>
+
+      <section id="how" class="feature-strip">
+        <article><span>01</span><h3>Paste</h3><p>Start with the product URL you already have.</p></article>
+        <article><span>02</span><h3>Select</h3><p>Choose the product images that tell the story.</p></article>
+        <article><span>03</span><h3>Create</h3><p>Generate a clean promotional creative in seconds.</p></article>
+        <article><span>04</span><h3>Share</h3><p>Use your affiliate link and publish wherever you want.</p></article>
+      </section>
+
+      <section id="studio" class="workspace">
+        <div class="workspace-heading">
+          <div><div class="eyebrow">CREATOR STUDIO</div><h2>Make your next product post.</h2></div>
+          <span class="status-chip"><i></i> System ready</span>
+        </div>
+
+        <section class="card source-card">
+          <div class="section-icon">01</div>
+          <div class="card-copy">
+            <div class="card-title"><div><span class="kicker">PRODUCT SOURCE</span><h2>Start with a product URL</h2></div><span class="supported">Myntra · Nykaa Fashion</span></div>
+            <form id="product-form">
+              <label for="retailer">Store</label>
+              <select id="retailer" aria-label="Detected store">
+                <option value="Myntra">Myntra</option>
+                <option value="Nykaa Fashion">Nykaa Fashion</option>
+              </select>
+              <label for="product-url-input">Product URL</label>
+              <div class="url-row">
+                <input id="product-url-input" name="url" type="url" placeholder="https://www.myntra.com/..." required />
+                <button class="button button-primary" type="submit">Fetch product <span>→</span></button>
+              </div>
+              <p id="error" class="error" role="alert"></p>
+            </form>
+          </div>
+        </section>
+
+        <section id="preview" class="card preview hidden" aria-live="polite">
+          <div class="preview-placeholder" id="image-placeholder">Product image will appear here.</div>
+          <div class="preview-content">
+            <span class="kicker">PRODUCT PREVIEW</span>
+            <h2 id="product-name">—</h2>
+            <p id="product-url" class="muted">—</p>
+            <dl>
+              <div><dt>Store</dt><dd id="product-retailer">—</dd></div>
+              <div><dt>Price</dt><dd id="product-price">—</dd></div>
+              <div><dt>Category</dt><dd id="product-category">—</dd></div>
+            </dl>
+            <button id="select-product" class="button button-dark" type="button">Use this product <span>→</span></button>
+          </div>
+        </section>
+
+        <section id="image-selection" class="card image-selection hidden" aria-live="polite">
+          <div class="section-heading"><div><span class="kicker">02 · IMAGE PICKER</span><h2>Choose your strongest images.</h2><p class="muted">Select up to four images for your creative.</p></div><strong id="image-count">0 / 4 selected</strong></div>
+          <div id="image-picker" class="image-picker"></div>
+          <p class="selection-hint">Click an image to add or remove it. Your selection stays focused on the product.</p>
+        </section>
+
+        <section id="selected" class="card success hidden">
+          <strong>Product selected ✓</strong><p id="selected-message"></p><span class="muted">Your creative studio is ready below.</span>
+        </section>
+
+        <section id="creative" class="card creative-card hidden">
+          <div class="creative-copy"><span class="kicker">03 · CREATIVE STUDIO</span><h2>Your promotional creative.</h2><p class="muted">A clean product-first layout with name, price/discount, store and SHOP NOW call-to-action.</p><div class="studio-note"><span>✦</span><div><strong>Made for sharing</strong><small>Optimized for a tall social post.</small></div></div></div>
+          <canvas id="creative-canvas" width="1000" height="1500" aria-label="Product promotional creative preview"></canvas>
+        </section>
+
+        <section id="affiliate" class="card affiliate-card hidden">
+          <div><span class="kicker">04 · AFFILIATE</span><h2>Make the link trackable.</h2><p class="muted">Convert the selected product URL through your Cuelinks account.</p></div>
+          <button id="convert-affiliate" class="button button-primary" type="button">Convert with Cuelinks <span>→</span></button>
+          <p id="affiliate-error" class="error" role="alert"></p>
+          <div id="affiliate-result" class="affiliate-result hidden"><strong id="affiliate-status">Affiliate link ready ✓</strong><p><a id="affiliate-link" href="#" target="_blank" rel="noopener noreferrer"></a></p><p id="affiliate-campaign" class="muted"></p></div>
+        </section>
+      </section>
+
+      <section class="cta-band"><div><span class="eyebrow">UPCHA</span><h2>Less formatting. More publishing.</h2><p>Build a repeatable product-content workflow without opening five different tools.</p></div><a class="button button-light" href="#studio">Create your next post <span>→</span></a></section>
     </main>
+
+    <footer class="site-footer"><div class="brand"><span class="brand-mark">U</span><span>upcha</span></div><p>Product content, simplified.</p><span>V1 · Creator workspace</span></footer>
     <script src="./app.js" type="module"></script>
   </body>
 </html>

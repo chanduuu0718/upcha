@@ -240,7 +240,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && requestUrl.pathname === '/api/health') return sendJson(res, 200, { ok: true, service: 'upcha-backend', environment: process.env.NODE_ENV || 'development', cuelinksConfigured: Boolean(process.env.CUELINKS_API_KEY), supportedRetailers: Object.values(RETAILERS).map((item) => item.label) }, req);
     if (req.method === 'GET' && requestUrl.pathname === '/api/products/from-url') {
       const productUrl = requestUrl.searchParams.get('url');
-      if (!productUrl) return sendJson(res, 400, { error: 'Missing url query parameter.' });
+      if (!productUrl) return sendJson(res, 400, { error: 'Missing url query parameter.' }, req);
       if (rateLimited(req, 'product')) return sendRateLimit(res, req);
       return sendJson(res, 200, await fetchProduct(productUrl), req);
     }

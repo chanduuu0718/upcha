@@ -2,18 +2,50 @@ import http from 'node:http';
 import { URL } from 'node:url';
 
 const PORT = Number(process.env.PORT || 3002);
-const HOST = process.env.HOST || '127.0.0.1';
+const HOST = process.env.HOST || '0.0.0.0';
+const ALLOWED_ORIGINS = new Set((process.env.ALLOWED_ORIGINS || 'http://127.0.0.1:5173,http://localhost:5173').split(',').map((value) => value.trim()).filter(Boolean));
+const RATE_WINDOW_MS = Number(process.env.RATE_WINDOW_MS || 60_000);
+const RATE_LIMIT = Number(process.env.RATE_LIMIT || 60);
+const rateBuckets = new Map();
 const PRODUCT_TIMEOUT_MS = Number(process.env.PRODUCT_TIMEOUT_MS || 12000);
 const CUELINKS_API_URL = 'https://developers.cuelinks.com/pub_api/v3/links/convert';
 
-function sendJson(res, status, body) {
+function requestOrigin(req) {
+  const origin = req.headers.origin;
+  return origin && ALLOWED_ORIGINS.has(origin) ? origin : null;
+}
+
+function sendJson(res, status, body, req) {
+  const origin = requestOrigin(req);
   res.writeHead(status, {
     'Content-Type': 'application/json; charset=utf-8',
-    'Access-Control-Allow-Origin': 'http://127.0.0.1:5173',
+    ...(origin ? { 'Access-Control-Allow-Origin': origin, Vary: 'Origin' } : {}),
     'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
+    'X-Content-Type-Options': 'nosniff',
+    'Cache-Control': 'no-store',
   });
   res.end(JSON.stringify(body));
+}
+
+function clientIp(req) {
+  return String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown').split(',')[0].trim();
+}
+
+function rateLimited(req, bucket = 'global') {
+  const now = Date.now();
+  const key = bucket + ':' + clientIp(req);
+  const current = rateBuckets.get(key);
+  if (!current || now - current.startedAt >= RATE_WINDOW_MS) {
+    rateBuckets.set(key, { startedAt: now, count: 1 });
+    return false;
+  }
+  current.count += 1;
+  return current.count > RATE_LIMIT;
+}
+
+function sendRateLimit(res, req) {
+  sendJson(res, 429, { error: 'Too many requests. Please wait a minute and try again.' }, req);
 }
 
 function decodeHtml(value = '') {
@@ -195,27 +227,35 @@ async function convertWithCuelinks(rawUrl) {
 
 const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') {
-    res.writeHead(204, { 'Access-Control-Allow-Origin': 'http://127.0.0.1:5173', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' });
+    const origin = requestOrigin(req);
+    res.writeHead(204, {
+      ...(origin ? { 'Access-Control-Allow-Origin': origin, Vary: 'Origin' } : {}),
+      'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    });
     return res.end();
   }
   try {
     const requestUrl = new URL(req.url, `http://${req.headers.host}`);
-    if (req.method === 'GET' && requestUrl.pathname === '/api/health') return sendJson(res, 200, { ok: true, service: 'upcha-backend', cuelinksConfigured: Boolean(process.env.CUELINKS_API_KEY), supportedRetailers: Object.values(RETAILERS).map((item) => item.label) });
+    if (req.method === 'GET' && requestUrl.pathname === '/api/health') return sendJson(res, 200, { ok: true, service: 'upcha-backend', environment: process.env.NODE_ENV || 'development', cuelinksConfigured: Boolean(process.env.CUELINKS_API_KEY), supportedRetailers: Object.values(RETAILERS).map((item) => item.label) }, req);
     if (req.method === 'GET' && requestUrl.pathname === '/api/products/from-url') {
       const productUrl = requestUrl.searchParams.get('url');
       if (!productUrl) return sendJson(res, 400, { error: 'Missing url query parameter.' });
-      return sendJson(res, 200, await fetchProduct(productUrl));
+      if (rateLimited(req, 'product')) return sendRateLimit(res, req);
+      return sendJson(res, 200, await fetchProduct(productUrl), req);
     }
     if (req.method === 'POST' && requestUrl.pathname === '/api/affiliate/convert') {
       let raw = '';
       for await (const chunk of req) raw += chunk;
       const body = JSON.parse(raw || '{}');
-      if (!body.url) return sendJson(res, 400, { error: 'Missing url in request body.' });
+      if (rateLimited(req, 'affiliate')) return sendRateLimit(res, req);
+      if (raw.length > 16_384) return sendJson(res, 413, { error: 'Request body is too large.' }, req);
+      if (!body.url) return sendJson(res, 400, { error: 'Missing url in request body.' }, req);
       retailerForUrl(body.url);
-      return sendJson(res, 200, await convertWithCuelinks(body.url));
+      return sendJson(res, 200, await convertWithCuelinks(body.url), req);
     }
-    return sendJson(res, 404, { error: 'Route not found.' });
-  } catch (error) { return sendJson(res, 502, { error: error instanceof Error ? error.message : 'Unexpected error.' }); }
+    return sendJson(res, 404, { error: 'Route not found.' }, req);
+  } catch (error) { return sendJson(res, 502, { error: error instanceof Error ? error.message : 'Unexpected error.' }, req); }
 });
 
 server.listen(PORT, HOST, () => console.log(`Upcha backend running at http://${HOST}:${PORT}`));
